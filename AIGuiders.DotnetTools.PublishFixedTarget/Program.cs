@@ -49,6 +49,10 @@ partial class PublishArgs
     [CommandLineArgument]
     [Description("Repeatable extra arguments appended to dotnet publish.")]
     public string[]? DotnetArg { get; set; }
+
+    [CommandLineArgument]
+    [Description("After mirror: each path must exist as a file under Target (relative; / or \\\\ ok). Typical: roslyn MCP + MSBuild Workspace — BuildHost-netcore/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll.")]
+    public string[]? RequireMirrorFile { get; set; }
 }
 
 internal static class Program
@@ -86,6 +90,8 @@ internal static class Program
             RunDotnetPublish(projectPath, outDir, a.Runtime, configuration, a.SelfContained, a.MsbuildProp, a.DotnetArg);
 
             MirrorDirectory(outDir, targetDir);
+
+            RequireMirrorArtifacts(targetDir, a.RequireMirrorFile);
 
             var publishExe = Path.Combine(outDir, $"{exeName}.exe");
             var targetExe = expectedTargetExe;
@@ -255,6 +261,37 @@ internal static class Program
 
     private static bool IsDirectoryEmpty(string path) =>
         !Directory.EnumerateFileSystemEntries(path).Any();
+
+    /// <summary>Fail fast when publish output misses known-critical assets (Roslyn MCP: MSBuild Workspace BuildHost).</summary>
+    private static void RequireMirrorArtifacts(string targetDir, string[]? relativeFilePaths)
+    {
+        if (relativeFilePaths is not { Length: > 0 })
+            return;
+
+        var targetRoot = Path.GetFullPath(targetDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        var boundary = targetRoot + Path.DirectorySeparatorChar;
+
+        foreach (var raw in relativeFilePaths.Where(p => !string.IsNullOrWhiteSpace(p)))
+        {
+            var rel = NormalizeRelativeRequirement(raw.Trim());
+            var resolved = Path.GetFullPath(Path.Combine(targetRoot, rel));
+            if (!resolved.StartsWith(boundary, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(resolved, targetRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException($"RequireMirrorFile must stay under Target: `{raw}`");
+            }
+
+            if (!File.Exists(resolved))
+            {
+                throw new FileNotFoundException(
+                    $"RequireMirrorFile not found after mirror (incomplete dotnet publish?): {rel}",
+                    resolved);
+            }
+        }
+    }
+
+    private static string NormalizeRelativeRequirement(string raw) =>
+        raw.Replace('/', Path.DirectorySeparatorChar).Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).Trim('\\');
 
     private static string QuoteIfNeeded(string s) =>
         s.Contains(' ') ? $"\"{s}\"" : s;
