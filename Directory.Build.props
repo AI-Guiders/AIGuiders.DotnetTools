@@ -4,8 +4,8 @@
     <Company>AIGuiders</Company>
     <Copyright>Copyright © AIGuiders</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/KarataevDmitry/AIGuiders.DotnetTools</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/KarataevDmitry/AIGuiders.DotnetTools</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/AI-Guiders/AIGuiders.DotnetTools</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AI-Guiders/AIGuiders.DotnetTools</RepositoryUrl>
     <Version Condition="'$(Version)' == ''">0.0.0</Version>
     <PackageVersion Condition="'$(PackageVersion)' == ''">$(Version)</PackageVersion>
   </PropertyGroup>

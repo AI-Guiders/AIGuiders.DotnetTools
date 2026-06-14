@@ -15,8 +15,8 @@
     <Description>dotnet publish wrapper: mirror to fixed target, optional kill-locking process, and print proof timestamps.</Description>
     <PackageTags>dotnet-tool;publish;deploy;robustness</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://github.com/KarataevDmitry/AIGuiders.DotnetTools</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/KarataevDmitry/AIGuiders.DotnetTools</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/AI-Guiders/AIGuiders.DotnetTools</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AI-Guiders/AIGuiders.DotnetTools</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
 
     <!-- Ensure runtimeconfig.json is included in tool package -->
