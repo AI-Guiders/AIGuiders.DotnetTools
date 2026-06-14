@@ -1,0 +1,84 @@
+name: NuGet publish
+
+on:
+  push:
+    tags:
+      - PublishFixedTarget/v*
+      - TomlCheck/v*
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Tool package folder name
+        required: true
+        type: choice
+        options:
+          - PublishFixedTarget
+          - TomlCheck
+      version:
+        description: SemVer (e.g. 0.1.0)
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Resolve package and version
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            PKG="${{ inputs.package }}"
+            VER="${{ inputs.version }}"
+          else
+            REF="${GITHUB_REF#refs/tags/}"
+            PKG="${REF%%/*}"
+            VER="${REF#*/}"
+          fi
+          case "$PKG" in
+            PublishFixedTarget)
+              PROJECT="AIGuiders.DotnetTools.PublishFixedTarget/AIGuiders.DotnetTools.PublishFixedTarget.csproj"
+              ;;
+            TomlCheck)
+              PROJECT="AIGuiders.DotnetTools.TomlCheck/AIGuiders.DotnetTools.TomlCheck.csproj"
+              ;;
+            *)
+              echo "Unknown tag prefix: $PKG" >&2
+              exit 1
+              ;;
+          esac
+          echo "package=$PKG" >> "$GITHUB_OUTPUT"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "project=$PROJECT" >> "$GITHUB_OUTPUT"
+          echo "Publishing $PKG v$VER"
+
+      - uses: NuGet/login@v2
+        id: nuget
+        with:
+          login-url: https://api.nuget.org/v3/index.json
+
+      - name: Pack
+        run: |
+          dotnet pack "${{ steps.meta.outputs.project }}" \
+            -c Release \
+            -o ./artifacts \
+            /p:PackageVersion=${{ steps.meta.outputs.version }} \
+            /p:Version=${{ steps.meta.outputs.version }}
+
+      - name: Push
+        run: |
+          dotnet nuget push artifacts/*.nupkg \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ steps.nuget.outputs.token }} \
+            --skip-duplicate
