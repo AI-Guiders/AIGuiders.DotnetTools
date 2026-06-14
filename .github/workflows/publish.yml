@@ -4,6 +4,21 @@ on:
   push:
     tags:
       - "v*"
+      - PublishFixedTarget/v*
+      - TomlCheck/v*
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Tool package folder name
+        required: true
+        type: choice
+        options:
+          - PublishFixedTarget
+          - TomlCheck
+      version:
+        description: SemVer (e.g. 0.1.0)
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -17,24 +32,62 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "10.0.x"
+          dotnet-version: 10.0.x
 
-      - name: Pack
-        run: dotnet pack AIGuiders.DotnetTools.PublishFixedTarget/AIGuiders.DotnetTools.PublishFixedTarget.csproj -c Release
+      - name: Resolve package and version
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            PKG="${{ inputs.package }}"
+            VER="${{ inputs.version }}"
+          else
+            REF="${GITHUB_REF#refs/tags/}"
+            if [[ "$REF" == */* ]]; then
+              PKG="${REF%%/*}"
+              VER="${REF#*/}"
+            else
+              PKG="PublishFixedTarget"
+              VER="${REF#v}"
+            fi
+          fi
+          case "$PKG" in
+            PublishFixedTarget)
+              PROJECT="AIGuiders.DotnetTools.PublishFixedTarget/AIGuiders.DotnetTools.PublishFixedTarget.csproj"
+              ;;
+            TomlCheck)
+              PROJECT="AIGuiders.DotnetTools.TomlCheck/AIGuiders.DotnetTools.TomlCheck.csproj"
+              ;;
+            *)
+              echo "Unknown tag prefix: $PKG" >&2
+              exit 1
+              ;;
+          esac
+          echo "package=$PKG" >> "$GITHUB_OUTPUT"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "project=$PROJECT" >> "$GITHUB_OUTPUT"
+          echo "Publishing $PKG v$VER"
 
-      - name: NuGet login (OIDC → temp API key)
+      - name: NuGet login (OIDC)
         uses: NuGet/login@v1
         id: login
         with:
           user: LonelySoul
 
+      - name: Pack
+        run: |
+          dotnet pack "${{ steps.meta.outputs.project }}" \
+            -c Release \
+            -o ./artifacts \
+            /p:PackageVersion=${{ steps.meta.outputs.version }} \
+            /p:Version=${{ steps.meta.outputs.version }}
+
       - name: Push to nuget.org
         run: |
-          dotnet nuget push "**/bin/Release/*.nupkg" \
+          dotnet nuget push artifacts/*.nupkg \
+            --source https://api.nuget.org/v3/index.json \
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
-            --source "https://api.nuget.org/v3/index.json" \
             --skip-duplicate
-

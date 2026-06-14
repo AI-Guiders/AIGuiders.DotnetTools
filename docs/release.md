@@ -4,7 +4,7 @@ Standalone repo: [KarataevDmitry/AIGuiders.DotnetTools](https://github.com/Karat
 
 ## Tag-driven NuGet publish
 
-One workflow (`.github/workflows/nuget-publish.yml`), **independent versions per tool** via tag prefix:
+One workflow (`.github/workflows/publish.yml`), **independent versions per tool** via tag prefix:
 
 | Tag | Package |
 |-----|---------|
