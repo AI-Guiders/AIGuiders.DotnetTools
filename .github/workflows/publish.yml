@@ -49,6 +49,7 @@ jobs:
             if [[ "$REF" == */* ]]; then
               PKG="${REF%%/*}"
               VER="${REF#*/}"
+              VER="${VER#v}"
             else
               PKG="PublishFixedTarget"
               VER="${REF#v}"
