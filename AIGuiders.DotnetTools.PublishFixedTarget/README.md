@@ -33,8 +33,9 @@ dotnet aid-publish -Help
 - `-Configuration`: `Debug` or `Release` (default `Debug`)
 - `-SelfContained`: publish self-contained
 - `-OutDir`: publish output directory (default: `publish-{configuration}`)
-- `-AppExeName`: executable/process name if it differs from project file name
+- `-AppExeName`: executable/process name if it differs from project file / `<AssemblyName>` (no `.exe`)
 - `-KillRunning`: kill the app if it is running from the target path
+- `-UseNuGet`: pass `/p:AidUseNuGet=true` — csproj dual refs should prefer PackageReference when `$(AidUseNuGet)==true` even if sibling `.csproj` exists
 - `-MsbuildProp`: repeatable `/p:Name=Value`
 - `-DotnetArg`: repeatable extra args appended to `dotnet publish`
 - `-RequireMirrorFile`: repeatable relative path — after mirroring **must exist as file** under `Target`. Example for **RoslynMcp** (`Microsoft.CodeAnalysis.Workspaces.MSBuild`): `BuildHost-netcore/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll` — catches incomplete publish output before MCP fails at runtime.

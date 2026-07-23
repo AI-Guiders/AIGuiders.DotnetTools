@@ -8,12 +8,12 @@ One workflow (`.github/workflows/publish.yml`), **independent versions per tool*
 
 | Tag | Package |
 |-----|---------|
-| `PublishFixedTarget/v0.1.3` | `AIGuiders.DotnetTools.PublishFixedTarget` → CLI `aid-publish` |
+| `PublishFixedTarget/v0.1.5` | `AIGuiders.DotnetTools.PublishFixedTarget` → CLI `aid-publish` |
 | `TomlCheck/v0.1.1` | `AIGuiders.DotnetTools.TomlCheck` → CLI `aig-toml-check` |
 
 ```bash
-git tag PublishFixedTarget/v0.1.3
-git push origin PublishFixedTarget/v0.1.3
+git tag PublishFixedTarget/v0.1.5
+git push origin PublishFixedTarget/v0.1.5
 
 git tag TomlCheck/v0.1.1
 git push origin TomlCheck/v0.1.1
@@ -36,6 +36,10 @@ Manual publish (emergency): **Actions → NuGet publish → Run workflow** — c
 - `aig-toml-check check`: TOML parse (Tomlyn), `#:schema` directive, JSON Schema validation (JsonSchema.Net).
 
 ### PublishFixedTarget
+
+#### 0.1.5
+
+- `aid-publish`: `-UseNuGet` → `/p:AidUseNuGet=true` (projects with dual ProjectReference|PackageReference can force NuGet).
 
 #### 0.1.3
 

@@ -10,6 +10,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>aid-publish</ToolCommandName>
     <PackageId>AIGuiders.DotnetTools.PublishFixedTarget</PackageId>
+    <Version>0.1.5</Version>
     <Authors>AIGuiders</Authors>
     <Title>AIGuiders publish to fixed target</Title>
     <Description>dotnet publish wrapper: mirror to fixed target, optional kill-locking process, and print proof timestamps.</Description>

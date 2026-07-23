@@ -13,6 +13,7 @@ Small, pragmatic .NET tools used across AIGuiders projects.
 
 - mirrors output into a fixed target path,
 - optionally kills the app only if it runs from that target path (file-lock preflight),
+- `-UseNuGet` → `/p:AidUseNuGet=true` (prefer PackageReference when project supports it),
 - prints proof timestamps,
 - optionally `-RequireMirrorFile` to assert critical files after mirror (e.g. Roslyn MSBuild Workspace `BuildHost-netcore`).
 
@@ -41,3 +42,4 @@ dotnet aig-toml-check check IntentMelody/intent-catalog.toml
 ## Release
 
 Tag prefix per tool — see [docs/release.md](docs/release.md).
+
