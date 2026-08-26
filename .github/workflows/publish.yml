@@ -6,6 +6,7 @@ on:
       - "v*"
       - PublishFixedTarget/v*
       - TomlCheck/v*
+      - Cli/v*
   workflow_dispatch:
     inputs:
       package:
@@ -15,6 +16,7 @@ on:
         options:
           - PublishFixedTarget
           - TomlCheck
+          - Cli
       version:
         description: SemVer (e.g. 0.1.0)
         required: true
@@ -61,6 +63,9 @@ jobs:
               ;;
             TomlCheck)
               PROJECT="AIGuiders.DotnetTools.TomlCheck/AIGuiders.DotnetTools.TomlCheck.csproj"
+              ;;
+            Cli)
+              PROJECT="AIGuiders.Cli/AIGuiders.Cli.csproj"
               ;;
             *)
               echo "Unknown tag prefix: $PKG" >&2
